@@ -159,6 +159,13 @@ export default {
             this.result = res.data.result;
             document.title = this.result.script.title + " - 哄睡宝";
             this.loading = false;
+            wx.updateAppMessageShareData({
+              title: this.result.script.title, // 分享标题
+              desc: this.result.album.description, // 分享描述
+              link: window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+              imgUrl: this.result.script.cover, // 分享图标
+              success: function () {},
+            });
           } else {
             this.msg = res.data.message;
             this.able = false;
@@ -185,7 +192,11 @@ export default {
     },
     useUrl() {
       let href = document.createElement("a");
-      href.href = "voice://script?scriptId=" + this.albumId;
+      href.href =
+        "voice://share?albumId=" +
+        this.result.album.id +
+        "&scriptId=" +
+        this.result.script.id;
       href.click();
       setTimeout(async () => {
         let hidden =

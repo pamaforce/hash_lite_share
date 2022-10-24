@@ -13,7 +13,7 @@
             <p class="openAppText">打开App</p>
           </div>
           <wx-open-launch-app
-            appid="wxd0a4ecd80a2ff7b4"
+            appid="wx6b824889eeb46917"
             :extinfo="shareInfo"
             @error="launchError"
             @click="openApp"
@@ -57,7 +57,7 @@
           <p class="openAppText_3">打开App，获取更多精彩故事</p>
         </div>
         <wx-open-launch-app
-          appid="wxd0a4ecd80a2ff7b4"
+          appid="wx6b824889eeb46917"
           :extinfo="shareInfo"
           @error="launchError"
           @click="openApp"
@@ -135,15 +135,14 @@ export default {
       .then((res) => {
         if (res.data.code === "00000") {
           wx.config({
-            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印
+            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印
             appId: "wx07c0bd592efbb4f0", // 必填，公众号的唯一标识
             timestamp: res.data.result.timestamp, // 必填，生成签名的时间戳
             nonceStr: res.data.result.nonceStr, // 必填，生成签名的随机串
             signature: res.data.result.signature, // 必填，签名
-            jsApiList: [], // 必填，需要使用的JS接口列表
+            jsApiList: ["updateAppMessageShareData", "updateTimelineShareData"], // 必填，需要使用的JS接口列表
             openTagList: ["wx-open-launch-app"], // 可选，需要使用的开放标签列表，例如['wx-open-launch-app']
           });
-          wx.ready(() => {});
           wx.error(() => {});
         }
       })
@@ -159,12 +158,20 @@ export default {
             this.result = res.data.result;
             document.title = this.result.script.title + " - 哄睡宝";
             this.loading = false;
-            wx.updateAppMessageShareData({
-              title: this.result.script.title, // 分享标题
-              desc: this.result.album.description, // 分享描述
-              link: window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-              imgUrl: this.result.script.cover, // 分享图标
-              success: function () {},
+            wx.ready(() => {
+              wx.updateAppMessageShareData({
+                title: this.result.script.title, // 分享标题
+                desc: this.result.album.description, // 分享描述
+                link: window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                imgUrl: this.imgBaseUrl + this.result.script.cover, // 分享图标
+                success: function () {},
+              });
+              wx.updateTimelineShareData({
+                title: this.result.script.title, // 分享标题
+                link: window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号 JS 安全域名一致
+                imgUrl: this.imgBaseUrl + this.result.script.cover, // 分享图标
+                success: function () {},
+              });
             });
           } else {
             this.msg = res.data.message;
